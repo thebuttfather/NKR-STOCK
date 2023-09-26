@@ -1,0 +1,204 @@
+<html>
+<head>
+    <title>NKR Stock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to NKR Stock</h1>
+    
+    <h2>Stock Details</h2>
+    <p>Stock Price: $<span id="stockPrice">100</span></p>
+
+    <h2>User Profiles</h2>
+    <div id="userProfiles"></div>
+
+    <h2>Actions</h2>
+    <button onclick="changePrice()">Change Stock Price (by But)</button>
+    <button onclick="buyStock()">Buy Stock</button>
+    <button onclick="sellStock()">Sell Stock</button>
+    <button onclick="changeUserShares()">Change Your Shares (by But)</button>
+    <button onclick="changeUserBalance()">Change User Bank Account (by But)</button>
+    <button onclick="changeAllUserBalances()">Change All User Bank Accounts (by But)</button>
+
+    <script>
+        let stockPrice = 100;
+
+        const userProfiles = {
+            Duff: { balance: 10000, shares: 1000 },
+            Cob: { balance: 10000, shares: 1000 },
+            Fang: { balance: 10000, shares: 1000 },
+            Cutie: { balance: 10000, shares: 1000 },
+            But: { balance: 10000, shares: 1000 }
+        };
+
+        const maxShares = 8000;
+        const password = "bantam";
+        const increment = 25;
+
+        function updateUserProfiles() {
+            const userProfilesContainer = document.getElementById("userProfiles");
+            userProfilesContainer.innerHTML = "";
+            for (const user in userProfiles) {
+                const profile = userProfiles[user];
+                userProfilesContainer.innerHTML += `
+                    <h3>${user}'s Portfolio</h3>
+                    <p>Balance: $${profile.balance.toFixed(2)}</p>
+                    <p>Shares: ${profile.shares}</p>
+                `;
+            }
+        }
+
+        function changePrice() {
+            const user = prompt("Enter your name:");
+            const userPassword = prompt("Enter your password:");
+            if (user === "But" && userPassword === password) {
+                const newPrice = parseFloat(prompt("Enter the new stock price:"));
+                if (!isNaN(newPrice)) {
+                    stockPrice = newPrice;
+                    document.getElementById("stockPrice").textContent = stockPrice.toFixed(2);
+                }
+            } else {
+                alert("Only But with the correct password can change the stock price.");
+            }
+        }
+
+        function buyStock() {
+            const user = prompt("Enter your name:");
+            const amountToBuy = parseInt(prompt("Enter the number of shares to buy:"));
+            if (!isNaN(amountToBuy)) {
+                if (userProfiles.hasOwnProperty(user)) {
+                    const profile = userProfiles[user];
+                    const cost = stockPrice * amountToBuy;
+                    if (cost <= profile.balance) {
+                        if (profile.shares + amountToBuy <= maxShares) {
+                            profile.shares += amountToBuy;
+                            profile.balance -= cost;
+                            updateUserProfiles();
+                        } else {
+                            alert("You can't buy more than 8000 shares.");
+                        }
+                    } else {
+                        alert("Insufficient balance.");
+                    }
+                } else {
+                    alert("User not found.");
+                }
+            } else {
+                alert("Invalid input.");
+            }
+        }
+
+        function sellStock() {
+            const user = prompt("Enter your name:");
+            const amountToSell = parseInt(prompt("Enter the number of shares to sell:"));
+            if (!isNaN(amountToSell)) {
+                if (userProfiles.hasOwnProperty(user)) {
+                    const profile = userProfiles[user];
+                    if (amountToSell <= profile.shares) {
+                        const earnings = stockPrice * amountToSell;
+                        profile.shares -= amountToSell;
+                        profile.balance += earnings;
+                        updateUserProfiles();
+                    } else {
+                        alert("You don't have enough shares to sell.");
+                    }
+                } else {
+                    alert("User not found.");
+                }
+            } else {
+                alert("Invalid input.");
+            }
+        }
+
+        function changeUserShares() {
+            const user = prompt("Enter your name:");
+            const userPassword = prompt("Enter your password:");
+            if (user === "But" && userPassword === password) {
+                const targetUser = prompt("Enter the user's name:");
+                if (userProfiles.hasOwnProperty(targetUser)) {
+                    const newShares = parseInt(prompt("Enter the new share count:"));
+                    if (!isNaN(newShares)) {
+                        if (newShares <= maxShares) {
+                            userProfiles[targetUser].shares = newShares;
+                            updateUserProfiles();
+                        } else {
+                            alert("Share count cannot exceed 8000.");
+                        }
+                    }
+                } else {
+                    alert("User not found.");
+                }
+            } else {
+                alert("Only But with the correct password can change user shares.");
+            }
+        }
+
+        function changeUserBalance() {
+            const user = prompt("Enter your name:");
+            const userPassword = prompt("Enter your password:");
+            if (user === "But" && userPassword === password) {
+                const targetUser = prompt("Enter the user's name:");
+                if (userProfiles.hasOwnProperty(targetUser)) {
+                    const action = prompt("Enter 'add' or 'subtract' to change the user's bank account:");
+                    if (action === "add" || action === "subtract") {
+                        const amount = parseInt(prompt(`Enter the amount to ${action}:`));
+                        if (!isNaN(amount)) {
+                            if (action === "add") {
+                                userProfiles[targetUser].balance += amount;
+                            } else {
+                                if (userProfiles[targetUser].balance >= amount) {
+                                    userProfiles[targetUser].balance -= amount;
+                                } else {
+                                    alert("Insufficient balance.");
+                                }
+                            }
+                            updateUserProfiles();
+                        }
+                    } else {
+                        alert("Invalid action. Please enter 'add' or 'subtract'.");
+                    }
+                } else {
+                    alert("User not found.");
+                }
+            } else {
+                alert("Only But with the correct password can change user balances.");
+            }
+        }
+
+        function changeAllUserBalances() {
+            const user = prompt("Enter your name:");
+            const userPassword = prompt("Enter your password:");
+            if (user === "But" && userPassword === password) {
+                const action = prompt("Enter 'add' or 'subtract' to change all user bank accounts:");
+                if (action === "add" || action === "subtract") {
+                    const amount = parseInt(prompt(`Enter the amount to ${action} for all users:`));
+                    if (!isNaN(amount)) {
+                        for (const user in userProfiles) {
+                            if (action === "add") {
+                                userProfiles[user].balance += amount;
+                            } else {
+                                if (userProfiles[user].balance >= amount) {
+                                    userProfiles[user].balance -= amount;
+                                } else {
+                                    alert(`Insufficient balance for ${user}.`);
+                                }
+                            }
+                        }
+                        updateUserProfiles();
+                    }
+                } else {
+                    alert("Invalid action. Please enter 'add' or 'subtract'.");
+                }
+            } else {
+                alert("Only But with the correct password can change all user balances.");
+            }
+        }
+
+        updateUserProfiles();
+    </script>
+</body>
+</html>
